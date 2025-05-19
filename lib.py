@@ -1,3 +1,5 @@
+from sage.all import *
+
 from functools import cache
 from itertools import repeat
 
@@ -47,6 +49,18 @@ def words(length, num_letters):
             for i in range(num_letters)
             for rest in words(length-1, num_letters)
         ]
+
+@cache
+def monomial_vector(f):
+    """
+    Returns the coefficients of a homogeneous polynomial indexed by
+    compositions (exponent vectors) in lex order.
+    """
+    return vector(
+        f[mon] 
+        for mon in compositions(degree=f.degree(), num_parts=f.parent().ngens())
+    )
+
 
 import unittest
 
