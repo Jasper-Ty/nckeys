@@ -4,7 +4,6 @@ from functools import cache
 from itertools import repeat
 from bidict import bidict
 
-# some functional stuff
 id = lambda x: x
 
 def compose(*funcs, reverse=False):
@@ -189,6 +188,7 @@ class TestWords(unittest.TestCase):
             (0,0): 8
         })
         self.assertEqual(lhs, rhs)
+
 
 if __name__ == '__main__':
     unittest.main()

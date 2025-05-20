@@ -1,7 +1,9 @@
 from sage.all import *
 
 class LabeledMatrix():
-
+    """
+    A matrix with labels for each row and column as extra data
+    """
 
     def __init__(self, rows, cols):
         self.rows= rows

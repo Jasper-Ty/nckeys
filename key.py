@@ -33,7 +33,7 @@ def monomial_vector(f):
     )
 
 
-from coeff_arr import LabeledMatrix
+from labeled_matrix import LabeledMatrix
 
 @cache
 def key_to_monomial_matrix(deg: int, k: int):

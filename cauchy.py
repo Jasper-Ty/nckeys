@@ -2,7 +2,7 @@ from sage.all import *
 
 from lib import words, compositions, word_to_composition
 from shapes import stairs
-from coeff_arr import LabeledMatrix
+from labeled_matrix import LabeledMatrix
 
 
 def h_biwords(squares, deg):
@@ -11,11 +11,13 @@ def h_biwords(squares, deg):
         for comp in compositions(deg, len(subset)):
             pass
 
+
 def e_biwords(squares, deg):
     for subset in Subsets(squares, deg):
         lword = tuple(i for i,_ in subset)
         rword = tuple(j for _,j in subset)
         yield (lword, rword)
+
 
 def xu_triangle(deg, k):
     """
