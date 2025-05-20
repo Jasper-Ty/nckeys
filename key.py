@@ -22,14 +22,14 @@ def key_polynomial(a: tuple[int], var='x'):
 
 
 @cache
-def monomial_vector(f):
+def monomial_vector(f, deg, k):
     """
     Returns the coefficients of a homogeneous polynomial indexed by
     compositions (exponent vectors) in lex order.
     """
     return vector(
         f[mon] 
-        for mon in compositions(deg=f.degree(), k=f.parent().ngens())
+        for mon in compositions(deg, k)
     )
 
 
@@ -42,11 +42,12 @@ def key_to_monomial_matrix(deg: int, k: int):
     degree `d` component of the polynomial ring in `n` variables.
     """
     out = LabeledMatrix(compositions(deg, k), compositions(deg, k))
-    out.matrix = matrix(
-        [
-            monomial_vector(key_polynomial(w)) 
+    vectors = [
+            monomial_vector(key_polynomial(w), deg, k) 
             for w in compositions(deg, k)
-        ],
+    ]
+    out.matrix = matrix(
+        vectors,
         immutable=True
     )
     return out

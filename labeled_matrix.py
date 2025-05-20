@@ -1,3 +1,5 @@
+import csv
+
 from sage.all import *
 
 class LabeledMatrix():
@@ -6,7 +8,7 @@ class LabeledMatrix():
     """
 
     def __init__(self, rows, cols):
-        self.rows= rows
+        self.rows = rows
         self.cols = cols
 
         self.m = len(rows)
@@ -31,6 +33,14 @@ class LabeledMatrix():
         product = LabeledMatrix(self.rows, right.cols)
         product.matrix = self.matrix * right.matrix
         return product
+    
+
+    def write_csv(self, filename):
+        with open(filename, 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile, dialect='unix')
+            writer.writerow([' '] + [str(col) for col in self.cols])
+            for row in self.rows:
+                writer.writerow([str(row)] + [self[row,col] for col in self.cols])
                     
 
     def table(self, colsize=3, rowsize=2, row_str=str, col_str=str, entry_str=str):
