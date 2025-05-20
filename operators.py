@@ -58,12 +58,12 @@ def atom_operator(i):
     The `i`-th 'atom' operator θᵢ.
     This is defined by 
     
-                θᵢ(f) := ∂ᵢ - id
+                θᵢ(f) := πᵢ - id
                
     """
     def op(p):
         assert isinstance(p.parent(), MPolynomialRing_base)
-        return divided_difference(i)(p) - p
+        return demazure_operator(i)(p) - p
 
     op.__name__ = f"θ_{i}"
         
