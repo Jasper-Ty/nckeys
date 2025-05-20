@@ -2,6 +2,22 @@ from sage.all import *
 
 from functools import cache
 from itertools import repeat
+from bidict import bidict
+
+# some functional stuff
+id = lambda x: x
+
+def compose(*funcs, reverse=False):
+    funcs = list(funcs)
+    if reverse:
+        funcs.reverse()
+    def composed(*args, **kwargs):
+        result = funcs[0](*args, **kwargs)
+        for f in funcs[1:]:
+            result = f(result)
+        return result
+    return composed
+
 
 @cache
 def straighten(a: tuple[int]) -> tuple[tuple[int], tuple[int]]:
@@ -21,45 +37,47 @@ def straighten(a: tuple[int]) -> tuple[tuple[int], tuple[int]]:
     rw.reverse()
     return (tuple(s), tuple(rw))
 
+
+def _compositions_list(deg, k):
+    return [
+        (deg-i, *rest)
+        for i in range(deg+1) 
+        for rest in _compositions_list(i,k-1) 
+    ] if deg > 0 and k > 1 else [(deg, *repeat(0, k-1))]
+    
+    
 @cache
-def compositions(degree, num_parts):
+def compositions(deg, k):
     """
-    Returns all nonnegative integer compositions with specified degree and number of parts in lex order.
+    Returns a `bidict` whose keys are all nonnegative integer compositions of
+    `deg` degree and `k` parts and whose values are indices in *reverse lex* order
     """
-    d, l = degree, num_parts
-    if d == 0 or l == 1 :
-        return [(d, *repeat(0, l-1))]
-    else:
-        return [
-            (d-j, *rest)
-            for j in range(d+1) 
-            for rest in compositions(j,l-1) 
-        ]
+    return bidict(enumerate(_compositions_list(deg, k))).inverse
+
+
+def _words_list(deg, k):
+    return [
+        (i, *rest)
+        for i in reversed(range(k))
+        for rest in _words_list(deg-1, k)
+    ] if deg else [()]
+    
 
 @cache
-def words(length, num_letters):
+def words(deg, k):
     """
-    Returns all words in num_letters letters of a given length in lex order
+    Returns a `bidict` whose keys are all words of length `deg`
+    on `k` letters and whose values are indices in *reverse lex* order
     """
-    if length == 1 :
-        return [(i,) for i in range(num_letters)]
-    else:
-        return [
-            (i, *rest)
-            for i in range(num_letters)
-            for rest in words(length-1, num_letters)
-        ]
+    return bidict(enumerate(_words_list(deg, k))).inverse
+
 
 @cache
-def monomial_vector(f):
-    """
-    Returns the coefficients of a homogeneous polynomial indexed by
-    compositions (exponent vectors) in lex order.
-    """
-    return vector(
-        f[mon] 
-        for mon in compositions(degree=f.degree(), num_parts=f.parent().ngens())
-    )
+def word_to_composition(w,k):
+    c = [0] * k
+    for i in w:
+        c[i] += 1
+    return tuple(c)
 
 
 import unittest
@@ -135,6 +153,41 @@ class TestStraighten(unittest.TestCase):
         
         lhs = straighten((2,0,1))
         rhs = ((2,1,0), (1,))
+        self.assertEqual(lhs, rhs)
+
+
+class TestCompositions(unittest.TestCase):
+    def test_3_3(self):
+        lhs = compositions(3,3)
+        rhs = bidict({
+            (3,0,0): 0, 
+            (2,1,0): 1,
+            (2,0,1): 2,
+            (1,2,0): 3,
+            (1,1,1): 4,
+            (1,0,2): 5,
+            (0,3,0): 6,
+            (0,2,1): 7,
+            (0,1,2): 8,
+            (0,0,3): 9
+        })
+        self.assertEqual(lhs, rhs)
+
+
+class TestWords(unittest.TestCase):
+    def test_3_2(self):
+        lhs = words(2,3)
+        rhs = bidict({
+            (2,2): 0, 
+            (2,1): 1,
+            (2,0): 2,
+            (1,2): 3,
+            (1,1): 4,
+            (1,0): 5,
+            (0,2): 6,
+            (0,1): 7,
+            (0,0): 8
+        })
         self.assertEqual(lhs, rhs)
 
 if __name__ == '__main__':
