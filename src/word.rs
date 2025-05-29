@@ -1,7 +1,7 @@
 use crate::Degree;
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct Word(Vec<usize>);
+pub struct Word(pub Vec<usize>);
 
 impl Degree for Word {
     fn degree(&self) -> usize {
