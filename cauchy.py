@@ -18,6 +18,8 @@ def e_biwords(squares, deg):
         rword = tuple(j for _,j in subset)
         yield (lword, rword)
 
+def invert_word(w, k):
+    return tuple(k-n-1 for n in w)
 
 def xu_triangle(deg, k):
     """
@@ -29,8 +31,7 @@ def xu_triangle(deg, k):
     squares = stairs(k)
     for lword, rword in e_biwords(squares, deg):
         x = word_to_composition(lword, k)
-        u = rword
-
+        u = invert_word(rword, k)
         M[u, x] += 1
-    
+
     return M
