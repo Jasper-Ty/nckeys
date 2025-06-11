@@ -1,7 +1,29 @@
+use std::fmt;
+
 use crate::Degree;
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct Word(pub Vec<usize>);
+pub struct Word(Vec<usize>);
+impl From<Vec<usize>> for Word {
+    fn from(value: Vec<usize>) -> Self {
+        Self(value)
+    }
+}
+
+impl fmt::Display for Word {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f,"[")?;
+        for (i, v) in self.0.iter().enumerate() {
+            write!(f, "{}", v)?;
+            if i < self.0.len()-1 {
+                write!(f, ", ")?;
+            }
+        }
+        write!(f,"]")?;
+
+        Ok(())
+    }
+}
 
 impl Degree for Word {
     fn degree(&self) -> usize {
@@ -11,7 +33,7 @@ impl Degree for Word {
 
 #[macro_export]
 macro_rules! word {
-    ( $( $x:expr ),* ) => { Word(vec![$($x,)*]) };
+    ( $( $x:expr ),* ) => { Word::from(vec![$($x,)*]) };
 }
 
 #[cfg(test)]

@@ -7,11 +7,12 @@ impl Shape {
         subsets(self.0.len(), deg)
             .into_iter()
             .map(|subset| subset.into_iter().map(|i| self.0[i]).unzip())
-            .map(|(l, r)| (Word(l), Word(r)))
+            .map(|(l, r): (Vec<usize>, Vec<usize>)| (Word::from(l), Word::from(r)))
             .collect()
     }
 }
 
+#[cfg(test)]
 mod tests {
     use super::*;
     use crate::word;
