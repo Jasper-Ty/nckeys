@@ -1,4 +1,4 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 use std::hash::Hash;
 use std::ops::Mul;
 
@@ -73,7 +73,7 @@ where
     c   
 }
 
-impl <A,B,C> std::ops::Mul<&Matrix<B,C>> for &Matrix<A,B>
+impl <A,B,C> Mul<&Matrix<B,C>> for &Matrix<A,B>
 where
     A: Clone + Hash + Eq,
     B: Clone + Hash + Eq,
@@ -85,7 +85,7 @@ where
         matmul(self, rhs)
     }
 }
-impl <A,B,C> std::ops::Mul<Matrix<B,C>> for &Matrix<A,B>
+impl <A,B,C> Mul<Matrix<B,C>> for &Matrix<A,B>
 where
     A: Clone + Hash + Eq,
     B: Clone + Hash + Eq,
@@ -97,7 +97,7 @@ where
         matmul(self, &rhs)
     }
 }
-impl <A,B,C> std::ops::Mul<&Matrix<B,C>> for Matrix<A,B>
+impl <A,B,C> Mul<&Matrix<B,C>> for Matrix<A,B>
 where
     A: Clone + Hash + Eq,
     B: Clone + Hash + Eq,
@@ -109,7 +109,7 @@ where
         matmul(&self, rhs)
     }
 }
-impl <A,B,C> std::ops::Mul<Matrix<B,C>> for Matrix<A,B>
+impl <A,B,C> Mul<Matrix<B,C>> for Matrix<A,B>
 where
     A: Clone + Hash + Eq,
     B: Clone + Hash + Eq,
