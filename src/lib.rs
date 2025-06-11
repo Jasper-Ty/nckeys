@@ -1,5 +1,6 @@
 mod word;
 mod shape;
+mod matrix;
 
 pub use word::*;
 
@@ -27,6 +28,7 @@ fn subsets(n: usize, k: usize) -> Vec<Vec<usize>> {
     subsets
 }
 
+#[cfg(test)]
 mod tests {
     use super::*;
 
