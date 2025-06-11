@@ -1,4 +1,5 @@
-use crate::{subsets, Word};
+use super::subsets;
+use super::word::Word;
 
 struct Shape(Vec<(usize,usize)>);
 
@@ -15,7 +16,6 @@ impl Shape {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::word;
 
     #[test]
     fn biwords_triangle_0() {

@@ -1,7 +1,5 @@
 use std::{fmt, ops::{Index, IndexMut}};
 
-use crate::Degree;
-
 /// A word is defined to be a tuple of nonnegative integers.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Word(Vec<usize>);
@@ -73,12 +71,6 @@ impl Index<usize> for Word {
 impl IndexMut<usize> for Word {
     fn index_mut(&mut self, index: usize) -> &mut Self::Output {
         self.get_mut(index).expect("Index not found in word")
-    }
-}
-
-impl Degree for Word {
-    fn degree(&self) -> usize {
-        self.0.len()
     }
 }
 
