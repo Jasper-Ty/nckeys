@@ -1,32 +1,34 @@
 use std::{fmt, ops::{Index, IndexMut}};
 
-/// A word is defined to be a tuple of nonnegative integers.
+/// A word is defined to be a tuple of nonnegative integers, which we call letters.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Word(Vec<usize>);
 
 impl Word {
 
     /// Returns the length of the word, i.e its number of entries.
-    pub fn len(&self) -> usize {
+    pub fn deg(&self) -> usize {
         self.0.len()
     }
 
+    /// Returns a reference to the letter at `idx`
     pub fn get(&self, idx: usize) -> Option<&usize> {
         self.0.get(idx)
     }
 
+    /// Returns a mutable reference to the letter at `idx`
     pub fn get_mut(&mut self, idx: usize) -> Option<&mut usize> {
         self.0.get_mut(idx)
     }
 
     /// Returns all words of length `l` in the letters 0, ..., n
-    pub fn words_of_len(l: usize, n: usize) -> Vec<Self> {
-        let total_num = n.pow(l as u32);
-        let mut words = vec![Word::from(vec![0; l]); total_num];
+    pub fn words_of_deg(deg: usize, n: usize) -> Vec<Self> {
+        let total_num = n.pow(deg as u32);
+        let mut words = vec![Word::from(vec![0; deg]); total_num];
 
         let mut p = total_num;
         let mut q = 1;
-        for j in 0..l {
+        for j in 0..deg {
             p /= n;
             q *= n;
             for k in 0..q {
