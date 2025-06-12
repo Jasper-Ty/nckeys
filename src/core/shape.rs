@@ -1,15 +1,55 @@
 use super::subsets;
 use super::word::Word;
+use super::matrix::Matrix;
 
-struct Shape(Vec<(usize,usize)>);
+/// A shape is defined to be a subset of ℕ × ℕ
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct Shape(Vec<(usize,usize)>);
+
+impl From<Vec<(usize,usize)>> for Shape {
+    fn from(value: Vec<(usize,usize)>) -> Self {
+        Self(value)
+    }
+}
 
 impl Shape {
-    fn biwords(&self, deg: usize) -> Vec<(Word, Word)> {
+    pub fn bounding_box(&self) -> (usize, usize) {
+        let mut i_max = 0;
+        let mut j_max = 0;
+        for (i, j) in self.0.iter().cloned() {
+            if i > i_max {
+                i_max = i;
+            }
+            if j > j_max {
+                j_max = j;
+            }
+        }
+        (i_max + 1, j_max + 1)
+    }
+
+    /// Returns a list of biwords
+    pub fn biwords(&self, deg: usize) -> Vec<(Word, Word)> {
         subsets(self.0.len(), deg)
             .into_iter()
             .map(|subset| subset.into_iter().map(|i| self.0[i]).unzip())
             .map(|(l, r): (Vec<usize>, Vec<usize>)| (Word::from(l), Word::from(r)))
             .collect()
+    }
+
+    /// 
+    pub fn word_matrix(&self, deg: usize) -> Matrix<Word, Word> {
+        let (i_max, j_max) = self.bounding_box();
+
+        let rows = Word::words_of_deg(deg, i_max);
+        let cols = Word::words_of_deg(deg, j_max);
+        
+        let mut m = Matrix::new(rows, cols);
+
+        for (left, right) in self.biwords(deg) {
+            m[(left, right)] += 1;
+        }
+       
+        m
     }
 }
 
