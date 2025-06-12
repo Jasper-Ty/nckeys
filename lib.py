@@ -37,7 +37,12 @@ def straighten(a: tuple[int]) -> tuple[tuple[int], tuple[int]]:
     return (tuple(s), tuple(rw))
 
 
+@cache
 def _compositions_list(deg, k):
+    """
+    Returns a list of all nonnegative integer compositions of degree `deg`
+    with `k` parts, in reverse lex order.
+    """
     return [
         (deg-i, *rest)
         for i in range(deg+1) 
@@ -54,7 +59,11 @@ def compositions(deg, k):
     return bidict(enumerate(_compositions_list(deg, k))).inverse
 
 
+@cache
 def _words_list(deg, k):
+    """
+    Returns a list of all words of length `deg` on `k` letters, in reverse lex order
+    """
     return [
         (i, *rest)
         for i in reversed(range(k))
