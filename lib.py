@@ -72,7 +72,8 @@ def words(deg, k):
 
 
 @cache
-def word_to_composition(w,k):
+def word_to_composition(w,k=None):
+    k = max(w) + 1 if k is None else k
     c = [0] * k
     for i in w:
         c[i] += 1
@@ -187,6 +188,23 @@ class TestWords(unittest.TestCase):
             (0,1): 7,
             (0,0): 8
         })
+        self.assertEqual(lhs, rhs)
+
+
+class TestWordsToCompositions(unittest.TestCase):
+    def test_3_2(self):
+        lhs = [(word, word_to_composition(word, 3)) for word in words(2,3)]
+        rhs = [
+            ((2,2), (0,0,2)), 
+            ((2,1), (0,1,1)),
+            ((2,0), (1,0,1)),
+            ((1,2), (0,1,1)),
+            ((1,1), (0,2,0)),
+            ((1,0), (1,1,0)),
+            ((0,2), (1,0,1)),
+            ((0,1), (1,1,0)),
+            ((0,0), (2,0,0))
+        ]
         self.assertEqual(lhs, rhs)
 
 
