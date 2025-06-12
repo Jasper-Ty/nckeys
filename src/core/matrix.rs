@@ -1,9 +1,9 @@
 use std::collections::HashMap;
 use std::hash::Hash;
-use std::ops::Mul;
+use std::ops::{Index, IndexMut, Mul};
 
 #[derive(Debug)]
-struct Matrix<R, C> 
+pub struct Matrix<R, C> 
 where 
     R: Clone + Hash + Eq,
     C: Clone + Hash + Eq,
@@ -45,6 +45,14 @@ where
 
     pub fn cols(&self) -> &[C] {
         &self.cols
+    }
+
+    pub fn nrows(&self) -> usize {
+        self.rows.len()
+    }
+
+    pub fn ncols(&self) -> usize {
+        self.cols.len()
     }
 }
 
@@ -119,6 +127,84 @@ where
 
     fn mul(self, rhs: Matrix<B,C>) -> Self::Output {
         matmul(&self, &rhs)
+    }
+}
+
+impl <R, C> Index<(R, C)> for Matrix<R, C> 
+where
+    R: Clone + Hash + Eq,
+    C: Clone + Hash + Eq,
+{
+    type Output = usize;
+
+    fn index(&self, (row, col): (R, C)) -> &Self::Output {
+        self.get(&row, &col).expect("Value at index does not exist")
+    }
+}
+
+impl <R, C> Index<(&R, &C)> for Matrix<R, C> 
+where
+    R: Clone + Hash + Eq,
+    C: Clone + Hash + Eq,
+{
+    type Output = usize;
+
+    fn index(&self, (row, col): (&R, &C)) -> &Self::Output {
+        self.get(row, col).expect("Value at index does not exist")
+    }
+}
+
+impl <R, C> IndexMut<(R, C)> for Matrix<R, C> 
+where
+    R: Clone + Hash + Eq,
+    C: Clone + Hash + Eq,
+{
+    fn index_mut(&mut self, (row, col): (R, C)) -> &mut Self::Output {
+        self.get_mut(&row, &col).expect("Value at index does not exist")
+    }
+}
+
+impl <R, C> IndexMut<(&R, &C)> for Matrix<R, C> 
+where
+    R: Clone + Hash + Eq,
+    C: Clone + Hash + Eq,
+{
+    fn index_mut(&mut self, (row, col): (&R, &C)) -> &mut Self::Output {
+        self.get_mut(row, col).expect("Value at index does not exist")
+    }
+}
+
+use std::fmt;
+use tabled::{builder::Builder, settings::Style};
+
+
+impl <R, C> fmt::Display for Matrix<R, C> 
+where
+    R: Clone + Hash + Eq + fmt::Display,
+    C: Clone + Hash + Eq + fmt::Display,
+{
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let m = self.nrows();
+        let n = self.ncols();
+        
+        let mut builder = Builder::default();
+        
+        // Matrix contents
+        for row in self.rows.iter() {
+            let record = self.cols.iter().map(|col| self[(row,col)].to_string());
+            builder.push_record(record);
+        }
+        
+        builder.insert_record(0, self.cols.iter().map(|col| col.to_string()));
+        builder.insert_column(0, 
+            std::iter::once(String::new())
+            .chain(self.rows.iter().map(|row| row.to_string()))
+        );
+        
+        let mut table = builder.build();
+        table.with(Style::rounded());
+
+        write!(f, "{}", table)
     }
 }
 
