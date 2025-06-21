@@ -2,13 +2,13 @@
 This file defines divided difference, Demazure, and atom operators.
 """
 
-from functools import cache
-
-from matrix import Matrix
-from lib import compositions, sl2string
+from . import cache
+from .matrix import Matrix
+from .lib import compositions, sl2string
+from .constants import *
 
 @cache
-def divided_difference(i, deg, n):
+def divided_difference(i, deg, n) -> Matrix:
     """
     Returns the linear map representing the `i`-th divided difference operator 
     ∂ᵢ restricted to the degree `deg` homogeneous component of the polynomial 
@@ -34,8 +34,8 @@ def divided_difference(i, deg, n):
         rows, 
         cols, 
         name=f"∂({i})",
-        rows_name=f"Comps(n: {n}, deg: {deg})",
-        cols_name=f"Comps(n: {n}, deg: {deg-1})"
+        rows_name=f"{COMP_SYMB}(n: {n}, deg: {deg})",
+        cols_name=f"{COMP_SYMB}(n: {n}, deg: {deg-1})"
     )
 
     for row in rows:
@@ -61,7 +61,7 @@ def divided_difference(i, deg, n):
 
 
 @cache
-def xmul(i, deg, n):
+def xmul(i, deg, n) -> Matrix:
     """
     Returns the linear map representing multiplication by xᵢ restricted to the 
     degree `deg` homogeneous component of the polynomial ring in `n` variables.
@@ -72,8 +72,8 @@ def xmul(i, deg, n):
         rows, 
         cols, 
         name=f"x({i})",
-        rows_name=f"Comps(n: {n}, deg: {deg})",
-        cols_name=f"Comps(n: {n}, deg: {deg+1})"
+        rows_name=f"{COMP_SYMB}(n: {n}, deg: {deg})",
+        cols_name=f"{COMP_SYMB}(n: {n}, deg: {deg+1})"
     )
 
     for row in rows:
@@ -86,7 +86,7 @@ def xmul(i, deg, n):
 
 
 @cache
-def demazure_operator(i, deg, n):
+def demazure_operator(i, deg, n) -> Matrix:
     """
     Returns the linear map representing the `i`-th Demazure operator πᵢ 
     restricted to the degree `deg` homogeneous component of the polynomial ring 
@@ -102,6 +102,18 @@ def demazure_operator(i, deg, n):
 
     out = x * dd
     out._name = f"π({i})"
+    return out
+
+
+@cache
+def demazure(*w, deg=3, n=6) -> Matrix:
+    out = Matrix.identity(compositions(deg, n))
+
+    for i in w:
+        out *= demazure_operator(i, deg, n)
+
+    out._name = f"π({', '.join(str(i) for i in w)})"
+    
     return out
 
 

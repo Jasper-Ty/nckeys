@@ -1,12 +1,20 @@
-from cauchy import xu_triangle
-from key import monomial_to_key_matrix
+from nckeys.operators import demazure
 
-for k in range(1,5):
-    for deg in range(k*(k+1)//2+1):
-        print(f"computing k={k},deg={deg}...")
-        key_expansion = xu_triangle(deg, k) * monomial_to_key_matrix(deg, k)
-        key_expansion.write_csv(
-            f"./results/triangle_key_expansion_k={k}_deg={deg}"
-        )
+deg = 2
+n = 2
 
-print("done!")
+print(demazure(0,1,0, deg=3, n=3))
+
+# Computing key polynomial matrix:
+
+# First, don't care about redundant calculations, first step.
+
+from nckeys.lib import compositions, straighten
+deg = 3
+n = 3
+for comp in compositions(deg, n):
+    print(f"Composition: {comp}")
+    s, w = straighten(comp)
+    print(f"    Sorted: {s}, Sorting permutation: {w}")
+    key = list(demazure(*w, deg=deg, n=n).row(s))
+    print(f"    Key: {key}")

@@ -1,7 +1,8 @@
 from functools import cache
 
-from lib import words, compositions, word_to_composition
-from matrix import Matrix
+from .lib import words, compositions, word_to_composition
+from .matrix import Matrix
+from .constants import *
 
 @cache
 def commutator_quotient_map(deg, n):
@@ -15,9 +16,9 @@ def commutator_quotient_map(deg, n):
     out = Matrix(
         rows, 
         cols, 
-        name=f"𝕨 → 𝕞 (n: {n}, deg: {deg})", 
-        rows_name=f"𝕞 (n: {n}, deg: {deg})",
-        cols_name=f"𝕨 (n: {n}, deg: {deg})",
+        name=f"{WORD_SYMB}→{COMP_SYMB}(n: {n}, deg: {deg})", 
+        rows_name=f"{COMP_SYMB}(n: {n}, deg: {deg})",
+        cols_name=f"{WORD_SYMB}(n: {n}, deg: {deg})",
         )
 
     for word in rows:

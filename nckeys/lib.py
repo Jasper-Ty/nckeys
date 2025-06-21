@@ -1,7 +1,7 @@
-from functools import cache
 from itertools import repeat
 
-from matrix import Matrix
+from .matrix import Matrix
+from . import cache
 
 id = lambda x: x
 
@@ -18,7 +18,7 @@ def compose(*funcs, reverse=False):
 
 
 @cache
-def straighten(a: tuple[int]) -> tuple[tuple[int], tuple[int]]:
+def straighten(a):
     """
     Returns a pair `(s, rw)`, where `s` is `a` sorted in nonincreasing order,
     and `rw` is a reduced word of the permutation that takes `a` to `s`.

@@ -3,7 +3,7 @@ This file defines divided difference, Demazure, and atom operators.
 """
 
 from itertools import chain
-from matrix import Matrix
+from nckeys import Matrix
 from lib import subsets, words
 
 def catalan(n: int):

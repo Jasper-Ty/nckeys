@@ -38,6 +38,7 @@ class Matrix:
         out = Matrix(rows, rows)
         for row in rows:
             out[(row, row)] = 1
+        out._name = "id"
         return out
 
 
