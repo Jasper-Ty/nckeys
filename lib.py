@@ -1,8 +1,7 @@
-from sage.all import *
-
 from functools import cache
 from itertools import repeat
-from bidict import bidict
+
+from matrix import Matrix
 
 id = lambda x: x
 
@@ -38,7 +37,7 @@ def straighten(a: tuple[int]) -> tuple[tuple[int], tuple[int]]:
 
 
 @cache
-def _compositions_list(deg, k):
+def compositions(deg, k):
     """
     Returns a list of all nonnegative integer compositions of degree `deg`
     with `k` parts, in reverse lex order.
@@ -46,50 +45,118 @@ def _compositions_list(deg, k):
     return [
         (deg-i, *rest)
         for i in range(deg+1) 
-        for rest in _compositions_list(i,k-1) 
+        for rest in compositions(i,k-1) 
     ] if deg > 0 and k > 1 else [(deg, *repeat(0, k-1))]
-    
-    
-@cache
-def compositions(deg, k):
-    """
-    Returns a `bidict` whose keys are all nonnegative integer compositions of
-    `deg` degree and `k` parts and whose values are indices in *reverse lex* order
-    """
-    return bidict(enumerate(_compositions_list(deg, k))).inverse
 
 
 @cache
-def _words_list(deg, k):
+def words(deg, k):
     """
     Returns a list of all words of length `deg` on `k` letters, in reverse lex order
     """
     return [
         (i, *rest)
         for i in reversed(range(k))
-        for rest in _words_list(deg-1, k)
+        for rest in words(deg-1, k)
     ] if deg else [()]
-    
-
-@cache
-def words(deg, k):
-    """
-    Returns a `bidict` whose keys are all words of length `deg`
-    on `k` letters and whose values are indices in *reverse lex* order
-    """
-    return bidict(enumerate(_words_list(deg, k))).inverse
 
 
 @cache
-def word_to_composition(w,k=None):
-    k = max(w) + 1 if k is None else k
-    c = [0] * k
+def word_to_composition(w,n=None):
+    n = max(w) + 1 if n is None else n
+    c = [0] * n
     for i in w:
         c[i] += 1
     return tuple(c)
 
 
+@cache
+def _subsets(n, deg):
+    """
+    Returns all subsets of [`n`] of size `deg`
+    """
+    subsets = []
+    stack = [[]]
+    while stack:
+        partial_subset = stack.pop()
+        if len(partial_subset) == deg:
+            subsets.append(partial_subset)
+        else:
+            i = partial_subset[-1] + 1 if partial_subset else 0
+            for j in reversed(range(i,n)):
+                new_subset = partial_subset.copy()
+                new_subset.append(j)
+                stack.append(new_subset)
+   
+    return subsets
+
+
+def subsets(arr, deg):
+    """
+    Returns all subsets of `arr` of size `deg`
+    """
+    return [[arr[i] for i in index_subset] for index_subset in _subsets(len(arr), deg)]
+
+
+def sl2string(comp, i, j):
+    """
+    Returns the smallest sl2 string that `comp` has to be contained in
+    """
+    if comp[i] == comp[j]:
+        return [comp]
+
+    if comp[i] > comp[j]:
+        p, q = i, j
+    else:
+        p, q = j, i
+
+    out = []
+
+    base = list(comp)
+    out.append(tuple(base))
+    for m in range(comp[p]-comp[q]):
+        base[p] -= 1
+        base[q] += 1
+        out.append(tuple(base))
+
+    return out
+
+
 import unittest
+
+class Test2String(unittest.TestCase):
+    def test_0(self):
+        comp = (3,5,0,2,1)
+        lhs = sl2string(comp, 1, 3)
+        rhs = [
+            (3,5,0,2,1), 
+            (3,4,0,3,1),
+            (3,3,0,4,1),
+            (3,2,0,5,1)
+        ]
+        self.assertEqual(lhs, rhs)
+
+
+    def test_1(self):
+        comp = (3,2,0,5,1)
+        lhs = sl2string(comp, 1, 3)
+        rhs = [
+            (3,2,0,5,1), 
+            (3,3,0,4,1),
+            (3,4,0,3,1),
+            (3,5,0,2,1)
+        ]
+        self.assertEqual(lhs, rhs)
+
+    
+    def test_2(self):
+        comp = (3,4,0,4,1)
+        lhs = sl2string(comp, 1, 3)
+        rhs = [
+            (3,4,0,4,1), 
+        ]
+        self.assertEqual(lhs, rhs)
+
 
 class TestStraighten(unittest.TestCase):
     def test_0(self):
@@ -168,35 +235,35 @@ class TestStraighten(unittest.TestCase):
 class TestCompositions(unittest.TestCase):
     def test_3_3(self):
         lhs = compositions(3,3)
-        rhs = bidict({
-            (3,0,0): 0, 
-            (2,1,0): 1,
-            (2,0,1): 2,
-            (1,2,0): 3,
-            (1,1,1): 4,
-            (1,0,2): 5,
-            (0,3,0): 6,
-            (0,2,1): 7,
-            (0,1,2): 8,
-            (0,0,3): 9
-        })
+        rhs = [
+            (3,0,0), 
+            (2,1,0),
+            (2,0,1),
+            (1,2,0),
+            (1,1,1),
+            (1,0,2),
+            (0,3,0),
+            (0,2,1),
+            (0,1,2),
+            (0,0,3)
+        ]
         self.assertEqual(lhs, rhs)
 
 
 class TestWords(unittest.TestCase):
     def test_3_2(self):
         lhs = words(2,3)
-        rhs = bidict({
-            (2,2): 0, 
-            (2,1): 1,
-            (2,0): 2,
-            (1,2): 3,
-            (1,1): 4,
-            (1,0): 5,
-            (0,2): 6,
-            (0,1): 7,
-            (0,0): 8
-        })
+        rhs = [
+            (2,2), 
+            (2,1),
+            (2,0),
+            (1,2),
+            (1,1),
+            (1,0),
+            (0,2),
+            (0,1),
+            (0,0)
+        ]
         self.assertEqual(lhs, rhs)
 
 

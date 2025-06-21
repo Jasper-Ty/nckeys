@@ -23,10 +23,15 @@ class Matrix:
 
     
     def transpose(self):
-        out = Matrix(self.cols, self.rows)
-        for row in self.rows:
-            for col in self.cols:
+        out = Matrix(self.cols, self.rows, name=f"({self._name})ᵀ")
+        out._cols_name = self._rows_name
+        out._rows_name = self._cols_name
+        
+        for row in self._rows:
+            for col in self._cols:
                 out[col, row] = self[row, col]
+            
+        return out
 
     
     def identity(rows):
@@ -87,29 +92,46 @@ class Matrix:
         return iter(self._data.keys())
 
 
+    def __eq__(self, right):
+        if self.rows != right.rows:
+            return False
+        if self.cols != right.cols:
+            return False
+
+        for row in self._rows:
+            for col in self._cols:
+                if self[row, col] != right[row, col]:
+                    return False
+
+        return True
+
+
     def __mul__(self, right):
-        if self.cols != right.rows:
+        if self._cols != right._rows:
             raise KeyError("Incompatible matrix multiplication")
 
-        out = Matrix(self.rows, right.cols)
-        out._name = f"{self._name} * {right._name}"
+        out = Matrix(self._rows, right._cols)
+        out._name = f"{self._name} × {right._name}"
+        out._rows_name = self._rows_name
+        out._cols_name = right._cols_name
 
-        for i in self.rows:
-            for j in right.cols:
-                for k in self.cols:
+        for i in self._rows:
+            for j in right._cols:
+                for k in self._cols:
                     out[i, j] += self[i, k] * right[k, j]
         
         return out
 
+
     def __repr__(self) -> str:
         """String representation."""
-        return f"Matrix({self.rows}, {self.cols})"
+        return f"Matrix({self._rows}, {self._cols})"
 
 
     def __str__(self):
         """Pretty string representation of the matrix."""
-        row_label_width = max(len(str(row)) for row in self.rows)
-        col_widths = [max(max(len(str(row)) for row in self.col(col)), len(str(col))) for col in self.cols]
+        row_label_width = max(len(str(row)) for row in self._rows)
+        col_widths = [max(max(len(str(row)) for row in self.col(col)), len(str(col))) for col in self._cols]
         total_width = 1 + (row_label_width + 2) + sum((width+3) for width in col_widths) + 1
 
         top = "╭" + "─" * (row_label_width+2) + "┬" + "┬".join("─" * (width+2) for width in col_widths) + "╮\n"
@@ -120,11 +142,14 @@ class Matrix:
         out = ""
         if self._name is not None:
             out += f"{self._name:^{total_width}}\n"
+        if self._rows_name is not None and self._cols_name is not None:
+            s = f"{self._rows_name} → {self._cols_name}"
+            out += f"{s:^{total_width}}\n"
         out += top 
-        out += "│" + " " * (row_label_width+2) + "│" + "│".join(f" {str(col):^{col_width}} " for col, col_width in zip(self.cols, col_widths)) + "│\n"
+        out += "│" + " " * (row_label_width+2) + "│" + "│".join(f" {str(col):^{col_width}} " for col, col_width in zip(self._cols, col_widths)) + "│\n"
         out += bar
 
-        rows = self.rows
+        rows = self._rows
         for i in range(len(rows)):
             row = rows[i]
             entries = self.row(row)
@@ -177,3 +202,8 @@ def row_sum(row_a, row_b, rows):
             out[(row, row_b)] = 1
 
     return out
+
+
+def column_vector(rows, name):
+    return Matrix(rows, [name])
+
