@@ -1,20 +1,13 @@
 from nckeys.operators import demazure
 
-deg = 2
-n = 2
-
-print(demazure(0,1,0, deg=3, n=3))
-
-# Computing key polynomial matrix:
-
-# First, don't care about redundant calculations, first step.
-
-from nckeys.lib import compositions, straighten
 deg = 3
 n = 3
-for comp in compositions(deg, n):
-    print(f"Composition: {comp}")
-    s, w = straighten(comp)
-    print(f"    Sorted: {s}, Sorting permutation: {w}")
-    key = list(demazure(*w, deg=deg, n=n).row(s))
-    print(f"    Key: {key}")
+
+from nckeys.key import key_to_monomial, monomial_to_key
+from nckeys.matrix import invert_unitriangular
+
+K2M = key_to_monomial(deg, n)
+M2K = monomial_to_key(deg, n)
+print(K2M)
+print(M2K)
+print(K2M * M2K)

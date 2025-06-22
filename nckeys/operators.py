@@ -113,6 +113,8 @@ def demazure(*w, deg=3, n=6) -> Matrix:
         out *= demazure_operator(i, deg, n)
 
     out._name = f"π({', '.join(str(i) for i in w)})"
+    out._rows_name = f"{COMP_SYMB}(n: {n}, deg: {deg})"
+    out._cols_name = f"{COMP_SYMB}(n: {n}, deg: {deg})"
     
     return out
 

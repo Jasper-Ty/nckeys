@@ -1,6 +1,7 @@
 """
 Package for playing around with noncommutative algebras
 """
+
 from functools import wraps
 
 CACHE = dict()

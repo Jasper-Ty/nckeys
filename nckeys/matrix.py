@@ -33,12 +33,32 @@ class Matrix:
             
         return out
 
+
+    def submatrix(self, rows=None, cols=None):
+        pass
     
+
     def identity(rows):
         out = Matrix(rows, rows)
         for row in rows:
             out[(row, row)] = 1
         out._name = "id"
+        return out
+    
+
+    def clone(self) -> "Matrix":
+        out = Matrix(
+            self._rows,
+            self._cols,
+            name=self._name,
+            rows_name=self._rows_name,
+            cols_name=self._cols_name
+        )
+
+        for i in self._rows:
+            for j in self._rows:
+                out[i,j] = self[i,j]
+
         return out
 
 
@@ -88,6 +108,20 @@ class Matrix:
         for row in self.rows:
             yield self[row, col]
 
+
+    @property
+    def nrows(self) -> int:
+        return len(self._rows)
+    
+
+    @property
+    def ncols(self) -> int:
+        return len(self._cols)
+
+
+    def is_square(self):
+        return self.nrows == self.ncols
+
     
     def keys(self):
         return iter(self._data.keys())
@@ -106,8 +140,43 @@ class Matrix:
 
         return True
 
+    
+    def __add__(self, right) -> "Matrix":
+        if self._cols != right._cols or self._rows != right._rows:
+            raise KeyError("Incompatible matrix addition")
+        
+        out = self.clone()
+        out._name = f"{self._name} + {right._name}"
 
-    def __mul__(self, right):
+        for i in self._rows:
+            for j in self._cols:
+                out[i, j] += right[i, j]
+        
+        return out
+
+    
+    def __neg__(self) -> "Matrix":
+        out = self.clone()
+        out._name = f"-{self._name}"
+
+        for i in self._rows:
+            for j in self._cols:
+                out[i, j] = -out[i, j]
+        
+        return out
+    
+
+    def __sub__(self, right) -> "Matrix":
+        if self._cols != right._cols or self._rows != right._rows:
+            raise KeyError("Incompatible matrix addition")
+        
+        out = self + (-right)
+        out._name = f"{self._name} - {right._name}"
+
+        return out
+
+
+    def __mul__(self, right) -> "Matrix":
         if self._cols != right._rows:
             raise KeyError("Incompatible matrix multiplication")
 
@@ -121,6 +190,20 @@ class Matrix:
                 for k in self._cols:
                     out[i, j] += self[i, k] * right[k, j]
         
+        return out
+
+    
+    def __pow__(self, exponent) -> "Matrix":
+        if not (isinstance(exponent, int) and exponent >= 0):
+            raise ValueError("Can't raise matrix to non integer exponent")
+
+        out = Matrix.identity(self._rows)
+
+        for _ in range(exponent):
+            out *= self
+
+        out._name = f"{self._name}^{exponent}"
+
         return out
 
 
@@ -205,6 +288,27 @@ def row_sum(row_a, row_b, rows):
     return out
 
 
+# (I + N)^{-1} = 
+# I = I - N^n = (I - N)(I + N + ... + N^{n-1}) 
+# (I - N)^{-1} = (I + N + ... + N^{n-1})
+# I - N = A
+# N = I - A
+
+def invert_unitriangular(A) -> Matrix:
+    """
+    Inverts a unitriangular matrix A via a geometric sum expansion
+    """
+
+    # TODO: Check if matrix is unitriangular
+
+    I = Matrix.identity(A.rows)
+    N = I - A
+    out = sum((N**i for i in range(A.nrows)), start=Matrix(A.rows, A.rows))
+    out._name = f"({A._name})^-1"
+
+    return out
+
+    
 def column_vector(rows, name):
     return Matrix(rows, [name])
 
