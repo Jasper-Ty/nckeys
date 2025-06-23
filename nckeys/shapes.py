@@ -3,8 +3,9 @@ This file defines divided difference, Demazure, and atom operators.
 """
 
 from itertools import chain
-from nckeys import Matrix
-from lib import subsets, words
+from .matrix import Matrix
+from .lib import subsets
+from .word import Word, Words
 
 def catalan(n: int):
     """
@@ -33,7 +34,7 @@ def biwords(shape, deg):
     out = []
     for subset in subsets(shape, deg):
         left, right = zip(*subset)
-        out.append((tuple(left), tuple(right)))
+        out.append((Word(left), Word(right)))
 
     return out
 
@@ -54,8 +55,8 @@ def word_matrix(shape, deg):
     Returns the matrix of words for a given shape
     """
     i_dim, j_dim = size(shape)
-    rows = words(deg, i_dim)
-    cols = words(deg, j_dim)
+    rows = Words(deg, i_dim)
+    cols = Words(deg, j_dim)
     out = Matrix(
         rows, 
         cols, 

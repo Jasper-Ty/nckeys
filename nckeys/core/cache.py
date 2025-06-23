@@ -1,18 +1,29 @@
-"""
-Package for playing around with noncommutative algebras
-"""
-
-import os
-from inspect import signature
-from collections import defaultdict
-from functools import wraps
-
+from typing import Tuple
+from dataclass import dataclass
 
 CACHE = dict()
 DATA_DIR = "./data"
-
 CONTEXT = []
+
+# Keeps track of which cached functions call which cached functions
 DEPS = defaultdict(set)
+
+@dataclass(frozen=True)
+class NamedComputation:
+    function_name: str
+    bound_arguments: tuple(Tuple[str, Any])
+
+    def __init__(self, f, args, kwargs):
+        self.fun
+    
+    @property
+    def func_dir(self):
+        out = os.path.join(DATA_DIR, f.__name__)
+        if not os.path.isdir(out):
+            os.mkdir(out)
+        return out
+
+
 
 def cache(f):
     """
@@ -62,6 +73,3 @@ def cache(f):
         return CACHE[key]
 
     return cached
-
-
-

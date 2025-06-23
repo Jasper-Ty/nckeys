@@ -237,7 +237,7 @@ class Matrix:
         for i in range(len(rows)):
             row = rows[i]
             entries = self.row(row)
-            out += "│" + f" {str(row):^{row_label_width}} " + "│" + "·".join(f" {str(entry):^{col_width}} " for entry, col_width in zip(entries, col_widths)) + "│\n"
+            out += "│" + f" {str(row):^{row_label_width}} " + "│" + "·".join(f" {str(entry) if entry != 0 else '':^{col_width}} " for entry, col_width in zip(entries, col_widths)) + "│\n"
             if i < len(rows) - 1:
                 out += mid
             else:

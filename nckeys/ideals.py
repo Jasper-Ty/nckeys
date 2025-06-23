@@ -1,8 +1,9 @@
-from functools import cache
-
+from . import cache
 from .lib import words, compositions, word_to_composition
 from .matrix import Matrix
 from .constants import *
+from .word import Words
+from .composition import Compositions
 
 @cache
 def commutator_quotient_map(deg, n):
@@ -10,8 +11,8 @@ def commutator_quotient_map(deg, n):
     Returns the quotient map sending words to compositions, i.e, the quotient
     map from a tensor power to a symmetric power.
     """
-    rows = words(deg, n)
-    cols = compositions(deg, n)
+    rows = Words(deg, n)
+    cols = Compositions(deg, n)
 
     out = Matrix(
         rows, 

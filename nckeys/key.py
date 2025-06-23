@@ -5,15 +5,15 @@ columns labeled by monomials and rows labeled by keys
 
 from . import cache
 from .constants import *
-from .lib import compositions, straighten
+from .composition import Compositions
 from .operators import demazure
 from .matrix import Matrix, invert_unitriangular
 
 
 @cache
 def key_to_monomial(deg, n) -> Matrix:
-    rows = compositions(deg, n)
-    cols = compositions(deg, n)
+    rows = Compositions(deg, n)
+    cols = Compositions(deg, n)
     out = Matrix(
         rows, 
         cols,
@@ -22,11 +22,11 @@ def key_to_monomial(deg, n) -> Matrix:
         cols_name=f"{COMP_SYMB}(n: {n}, deg: {deg})",
     )
 
-    for i in compositions(deg, n):
-        s, w = straighten(i)
+    for comp in Compositions(deg, n):
+        s, w = comp.straighten()
         dem = demazure(*w, deg=deg, n=n)
-        for j in compositions(deg, n):
-            out[i,j] = dem[s,j]
+        for j in Compositions(deg, n):
+            out[comp,j] = dem[s,j]
     
     return out
 

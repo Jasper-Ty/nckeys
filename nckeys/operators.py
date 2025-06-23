@@ -4,7 +4,8 @@ This file defines divided difference, Demazure, and atom operators.
 
 from . import cache
 from .matrix import Matrix
-from .lib import compositions, sl2string
+from .lib import sl2string
+from .composition import Compositions
 from .constants import *
 
 @cache
@@ -28,8 +29,8 @@ def divided_difference(i, deg, n) -> Matrix:
         # constants--- it's the zero map), but I'm lazy to implement it
         raise IndexError
 
-    rows = compositions(deg, n)
-    cols = compositions(deg-1, n)
+    rows = Compositions(deg, n)
+    cols = Compositions(deg-1, n)
     out = Matrix(
         rows, 
         cols, 
@@ -66,8 +67,8 @@ def xmul(i, deg, n) -> Matrix:
     Returns the linear map representing multiplication by xᵢ restricted to the 
     degree `deg` homogeneous component of the polynomial ring in `n` variables.
     """
-    rows = compositions(deg, n)
-    cols = compositions(deg+1, n)
+    rows = Compositions(deg, n)
+    cols = Compositions(deg+1, n)
     out = Matrix(
         rows, 
         cols, 
@@ -107,7 +108,7 @@ def demazure_operator(i, deg, n) -> Matrix:
 
 @cache
 def demazure(*w, deg=3, n=6) -> Matrix:
-    out = Matrix.identity(compositions(deg, n))
+    out = Matrix.identity(Compositions(deg, n))
 
     for i in w:
         out *= demazure_operator(i, deg, n)
