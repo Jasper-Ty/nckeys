@@ -1,11 +1,10 @@
-"""
-Class representing a matrix with labeled rows and columns.
+"""Implementation of matrices with labeled rows and columns.
+
 Linear algebra capabilities are minimal.
 """
 
 class Matrix:
-    """
-    An integer matrix class with arbitrary row and column indices.
+    """An integer matrix class with arbitrary row and column indices.
     """
     def __init__(self, rows, cols, name=None, rows_name=None, cols_name=None):
         self._data = dict()
@@ -126,6 +125,10 @@ class Matrix:
     def keys(self):
         return iter(self._data.keys())
 
+    
+    def is_positive(self):
+        return all(x >= 0 for x in self._data.values())
+
 
     def __eq__(self, right):
         if self.rows != right.rows:
@@ -227,7 +230,7 @@ class Matrix:
         if self._name is not None:
             out += f"{self._name:^{total_width}}\n"
         if self._rows_name is not None and self._cols_name is not None:
-            s = f"{self._rows_name} → {self._cols_name}"
+            s = f"rows: {self._rows_name}  cols: {self._cols_name}"
             out += f"{s:^{total_width}}\n"
         out += top 
         out += "│" + " " * (row_label_width+2) + "│" + "│".join(f" {str(col):^{col_width}} " for col, col_width in zip(self._cols, col_widths)) + "│\n"
@@ -288,18 +291,9 @@ def row_sum(row_a, row_b, rows):
     return out
 
 
-# (I + N)^{-1} = 
-# I = I - N^n = (I - N)(I + N + ... + N^{n-1}) 
-# (I - N)^{-1} = (I + N + ... + N^{n-1})
-# I - N = A
-# N = I - A
-
 def invert_unitriangular(A) -> Matrix:
+    """Inverts a unitriangular matrix A via a geometric sum expansion
     """
-    Inverts a unitriangular matrix A via a geometric sum expansion
-    """
-
-    # TODO: Check if matrix is unitriangular
 
     I = Matrix.identity(A.rows)
     N = I - A
@@ -307,8 +301,4 @@ def invert_unitriangular(A) -> Matrix:
     out._name = f"({A._name})^-1"
 
     return out
-
-    
-def column_vector(rows, name):
-    return Matrix(rows, [name])
 

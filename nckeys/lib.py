@@ -1,25 +1,42 @@
 """
-Utility functions
+This file contains various utility and helper functions.
 """
 
 from itertools import repeat
 from typing import Tuple
+from collections.abc import Sequence, Iterator
+
+from .core.cache import cache
 
 from .matrix import Matrix
-from . import cache
+
+
+def windows(seq: Sequence, length: int) -> Iterator[Tuple[tuple[int], tuple[int], tuple[int]]]:
+    """All contiguous windows of `seq` of length `length`.
+    """
+    if length > len(seq) or length < 0:
+            raise ValueError()
+
+    return (
+        (seq[:i], seq[i:i+length], seq[i+length:]) 
+        for i in range(len(seq)-length+1)
+    )
 
 
 @cache
-def straighten(a: tuple[int]) -> Tuple[tuple[int], tuple[int]]:
-    """
+def straighten(seq: Sequence[int]) -> Tuple[tuple[int], tuple[int]]:
+    """Sorts `seq` and returns the minimal length permutation that sorts it.
     Returns a pair `(s, rw)`, where `s` is `a` sorted in nonincreasing order,
     and `rw` is a reduced word of the permutation that takes `a` to `s`.
+
+    (I believe this corresponds to the reduced word of the inverse of the 
+    standardization of `a`?)
     """
     
     rw = []
-    s = list(a)
+    s = list(seq)
 
-    while (ascents := list(filter(lambda i: s[i+1] > s[i], range(len(a)-1)))):
+    while (ascents := list(filter(lambda i: s[i+1] > s[i], range(len(seq)-1)))):
         for ascent in ascents:
             s[ascent+1], s[ascent] = s[ascent], s[ascent+1]
             rw.append(ascent)
@@ -28,72 +45,29 @@ def straighten(a: tuple[int]) -> Tuple[tuple[int], tuple[int]]:
     return (tuple(s), tuple(rw))
 
 
-@cache
-def compositions(deg, k):
+def subsequences_of_n(n: int, length: int) -> Iterator[tuple[int]]:
+    """All subsequences of [0, ..., n-1] of length `length`
     """
-    Returns a list of all nonnegative integer compositions of degree `deg`
-    with `k` parts, in reverse lex order.
-    """
-    return [
-        (deg-i, *rest)
-        for i in range(deg+1) 
-        for rest in compositions(i,k-1) 
-    ] if deg > 0 and k > 1 else [(deg, *repeat(0, k-1))]
-
-
-@cache
-def words(deg, k):
-    """
-    Returns a list of all words of length `deg` on `k` letters, in reverse lex order
-    """
-    return [
-        (i, *rest)
-        for i in reversed(range(k))
-        for rest in words(deg-1, k)
-    ] if deg else [()]
-
-
-@cache
-def word_to_composition(w,n=None):
-    n = max(w) + 1 if n is None else n
-    c = [0] * n
-    for i in w:
-        c[i] += 1
-    return tuple(c)
-
-
-@cache
-def _subsets(n, deg):
-    """
-    Returns all subsets of [`n`] of size `deg`
-    """
-    subsets = []
-    stack = [[]]
+    stack = [()]
     while stack:
         partial_subset = stack.pop()
-        if len(partial_subset) == deg:
-            subsets.append(partial_subset)
+        if len(partial_subset) == length:
+            yield partial_subset
         else:
-            i = partial_subset[-1] + 1 if partial_subset else 0
-            for j in reversed(range(i,n)):
-                new_subset = partial_subset.copy()
-                new_subset.append(j)
-                stack.append(new_subset)
-   
-    return subsets
+            i = partial_subset[-1] if partial_subset else -1
+            stack.extend((*partial_subset, j) for j in reversed(range(i+1,n)))
 
 
-def subsets(arr, deg):
+def subsequences(seq: Sequence[int], length: int) -> Iterator[tuple[int]]:
+    """All subsequences of `seq` of length `length`.
     """
-    Returns all subsets of `arr` of size `deg`
-    """
-    return [[arr[i] for i in index_subset] for index_subset in _subsets(len(arr), deg)]
+    subseqs = subsequences_of_n(len(seq), length)
+    return (tuple(map(seq.__getitem__, subseq)) for subseq in subseqs)
 
 
 @cache
-def sl2string(comp, i, j):
-    """
-    Returns the smallest sl2 string that `comp` has to be contained in
+def sl2string(comp: Sequence[int], i: int, j: int) -> list[tuple[int]]:
+    """Returns the sl2 string that `comp` generates.
     """
     if comp[i] == comp[j]:
         return [comp]

@@ -1,72 +1,102 @@
-from .word import Word
+from itertools import chain
+
+from .word import Word, Words
 from .matrix import Matrix
+from .core.cache import cache
 
 
-def rewrites(word, lword, rword):
+class Bijectivization:
     """
-    Returns a list of all possible applications of the rule `lword` -> `rword` 
-    for the word `word`
     """
-    out = set()
-    if rword is not None:
-        l = len(lword)
-        windows = ((word[:i], word[i:i+l], word[i+l:]) for i in range(len(word)-l+1))
-        for prefix, subword, suffix in windows:
-            if subword == lword:
-                out.add(Word(*prefix, *rword, *suffix))
 
-    return out
+    def __init__(self, I, name=None, representative=max):
+        """
+        """
+        self.E = []
+        self.N = []
+        self._name = name
+        self._representative = representative
 
+        for (lword, rword) in I:
+            if rword is None:
+                self.N.append(lword)
+            else:
+                self.E.append((lword, rword))
 
-def bij_neighbors(word, I):
-    out = set()
+ 
+    def _neighbors(self, word: Word) -> set[Word]:
+        """All the words reachable by one edge.
+        """
+        out = set()
 
-    for lword, rword in I:
-        out |= rewrites(word, lword, rword)
-        out |= rewrites(word, rword, lword)
+        for lword, rword in self.E:
+            out.update(word.rewrites(lword, rword))
+            out.update(word.rewrites(rword, lword))
 
-    return out
+        return out
 
-
-def bij_component(word, I, visited=None):
-    if visited is None:
-        visited = { word }
-
-    for neighbor in bij_neighbors(word, I):
-        if neighbor not in visited:
-            visited.add(neighbor)
-            visited |= bij_component(neighbor, I, visited)
-
-    return visited
-
-
-def bij_components(W, I, representative=max):
-    visited = set()
-    out = dict()
-
-    for word in W:
-        if word not in visited:
-            component = bij_component(word, I)
-            visited |= component
-            out[representative(component)] = component
-            
     
-    return out
+    def _component(self, word, visited=None):
+        """Closure under taking neighbors.
 
+        This is implemented as a variation of depth-first search.
+        """
+        if visited is None:
+            visited = set()
 
-def bij_quotient(W, I):
-    """
-    Returns the matrix encoding the quotient map of this bijectivization
-    """
-    components = bij_components(W, I)
-    rows = W
-    cols = list(components.keys())
-    out = Matrix(
-        rows,
-        cols
-    )
-    for rep, component in components.items():
-        for word in component:
-            out[word, rep] = 1
+        visited.add(word)
+        for neighbor in self._neighbors(word):
+            if neighbor not in visited:
+                visited |= self._component(neighbor, visited)
+
+        return visited
+
     
-    return out
+    def _components(self, W):
+        visited = set()
+        out = dict()
+
+        for word in W:
+            if word not in visited:
+                component = self._component(word)
+                visited |= component
+                out[self._representative(component)] = component
+        
+        return out
+
+    
+    def _in_N(self, word):
+        return any(True for _ in word.matches(*self.N))
+
+
+    def _is_nonzero_component(self, component: set[Word]):
+        return all(
+            not self._in_N(word)
+            for word in component
+        )
+
+
+    def _quotient(self, W):
+        """
+        Returns the matrix encoding the quotient map of the bijectivization `(B, M)`
+        """
+        components = {
+            rep: component 
+            for rep, component in self._components(W).items()
+            if self._is_nonzero_component(component)
+        }
+        rows = W
+        cols = list(components.keys())
+        out = Matrix(rows, cols)
+        for rep, component in components.items():
+            for word in component:
+                out[word, rep] = 1
+        
+        return out
+
+
+    def quotient(self, deg, n):
+        W = Words(deg, n)
+        out = self._quotient(W)
+        out._name = f"{self._name}"
+        return out
