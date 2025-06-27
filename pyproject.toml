@@ -1,0 +1,10 @@
+[project]
+name = "nckeys"
+version = "0.1.0"
+description = "Code for studying expansions of Cauchy kernels"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "scipy>=1.16.0",
+    "tomli-w>=1.2.0",
+]

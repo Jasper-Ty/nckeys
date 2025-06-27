@@ -48,10 +48,15 @@ def RkRelations(n, k):
 
 
 @cache
+def rk(n, k):
+    return Bijectivization(RkRelations(n, k))
+
+
+@cache
 def rk_quotient(deg, n, k):
     I = Bijectivization(RkRelations(n, k))
     out = I.quotient(deg, n)
-    out._name = f"r{k}"
+    out._name = f"{WORD_SYMB} ↠ r{k}"
     out._rows_name =f"{WORD_SYMB}(deg: {deg}, n: {n})"
     out._cols_name =f"R_k^⟂(deg: {deg+1}, n: {n})"
 

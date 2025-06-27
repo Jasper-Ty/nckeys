@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from ..word import Words, permutations
 from ..bijectivization import *
-from ..plactic import plactic_relations
+from ..ideals.plactic import plactic_relations
 
 
 class TestBijectivization(TestCase):

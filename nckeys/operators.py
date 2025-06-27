@@ -1,5 +1,5 @@
-"""
-This file defines divided difference, Demazure, and atom operators.
+""" Various operators
+This module defines divided difference, Demazure, and atom operators.
 """
 
 from .core.cache import cache

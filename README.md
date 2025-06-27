@@ -35,9 +35,8 @@ complex numbers by congruence (= with the same basis on the left and right).
 
 ## Requirements
 
-- Python
-    - I believe you need least 3.8 for the features I'm using. 
-    I'm running 3.10.12 on my machine
+- Python >= 3.13
+- [uv](https://github.com/astral-sh/uv)
 
 
 ## Tutorial
@@ -69,17 +68,14 @@ number of generators, and `deg` will always relate to some notion of size.
 
 ## Tests
 
-Nearly all functions are tested with `deg=0..3` and `n=0..3`. 
+Many, but not all, functions are tested with `deg=0..3` and `n=0..3`. 
 
-To run the tests, install `unittest` with `pip install unittest`, and run all
-tests with `python -m unittest -v`.
+TO run all tests, do `uv run python -m unittest -v`.
 
-This package saves intermediate results in a folder called `DATA_DIR`, which is,
+This package saves intermediate results in a folder called `CACHE_DIR`, which is,
 by default, `./data`.
 
 
 ## To-do
 
-- Bijectivizations allowing zero
 - Optimize integer matrix code
-- Refactor `cache.py`

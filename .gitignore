@@ -1,4 +1,7 @@
+# Compiled files
 **/__pycache__/
+.mypy_cache/
+
 results/
 target/
 data/

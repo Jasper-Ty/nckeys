@@ -6,6 +6,7 @@ from .matrix import Matrix
 from .lib import subsequences
 from .word import Word, Words
 from .composition import Compositions
+from .bases import dagger_matrix
 
 def diagram(w, rev=False):
     """
@@ -97,10 +98,11 @@ def size(shape):
     return (i_max + 1, j_max + 1)
 
 
-def biword_matrix(shape, deg, expansion="h"):
+def biword_matrix(shape, deg, expansion="h", dagger=False):
     """Returns the matrix of words for a given shape
     """
     i_dim, j_dim = size(shape)
+    
     rows = Words(deg, i_dim)
     cols = Words(deg, j_dim)
     out = Matrix(
@@ -109,12 +111,32 @@ def biword_matrix(shape, deg, expansion="h"):
         rows_name=f"{WORD_SYMB}(n: {i_dim}, deg: {deg})",
         cols_name=f"{WORD_SYMB}(n: {j_dim}, deg: {deg})",
     )
+ 
     if expansion == "h":
         biwords = h_biwords(shape, deg)
     elif expansion == "e":
-        biwords = e_biwords(shape, deg)
+        biwords = e_biwords(shape, deg) 
 
     for left, right in biwords:
         out[left, right] += 1
+
+    if (dagger and expansion == "h") or (not dagger and expansion == "e"):
+            out = out * dagger_matrix(deg, j_dim)
     
+    return out
+
+
+@cache
+def root_ideals(n):
+    if n == 0:
+        return [[]]
+
+    out = []
+    for p in range(n):
+        q = n-p-1
+        for A in root_ideals(q):
+            for B in root_ideals(p):
+                partition = Word(*(A[i] + p for i in range(q)), p, *B)
+                out.append(partition)
+
     return out

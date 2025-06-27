@@ -1,15 +1,17 @@
-"""Implementation of matrices with labeled rows and columns.
+"""
+Implementation of matrices with labeled rows and columns.
 
 Linear algebra capabilities are minimal.
 """
+import scipy
+
 
 class Matrix:
     """An integer matrix class with arbitrary row and column indices.
     """
     def __init__(self, rows, cols, name=None, rows_name=None, cols_name=None):
         self._data = dict()
-        if len(rows) == 0 or len(cols) == 0:
-            raise Exception("Empty matrix")
+
         self._rows = rows.copy()
         self._cols = cols.copy()
         self._name = name
@@ -126,7 +128,7 @@ class Matrix:
         return iter(self._data.keys())
 
     
-    def is_positive(self):
+    def is_nonnegative(self):
         return all(x >= 0 for x in self._data.values())
 
 

@@ -107,11 +107,11 @@ def permutations(n: int) -> list[Word]:
 
 @cache
 def partitions(n: int, m=None) -> list[Word]:
-    """
+    """All partitions of `n` in reverse lex order.
     """
     m = n if m is None else m
     return [
         Word(i, *rest)
-        for i in range(1, m+1)
+        for i in reversed(range(1, m+1))
         for rest in partitions(n-i, m=i)
     ] if n > 0 else [Word()]
